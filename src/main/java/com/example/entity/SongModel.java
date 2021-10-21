@@ -4,10 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.springframework.hateoas.RepresentationModel;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotNull;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class SongModel extends RepresentationModel<SongModel> {
@@ -20,6 +23,9 @@ public class SongModel extends RepresentationModel<SongModel> {
     @NotNull
     private String singer;
 
+    @NotNull
+    private MultipartFile data;
+
     @JsonProperty
     public Long getId() {
         return id;
@@ -29,4 +35,6 @@ public class SongModel extends RepresentationModel<SongModel> {
     public void setId(Long id) {
         this.id = id;
     }
+
+
 }

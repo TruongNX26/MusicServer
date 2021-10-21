@@ -29,18 +29,18 @@ public class SongController {
     @PostMapping(
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity createMusic(@ModelAttribute SongModel model, @RequestPart MultipartFile data) throws IOException {
+    public ResponseEntity<Song> createNewMusic(@ModelAttribute SongModel model) throws IOException {
 
-        if(data == null) throw new RuntimeException("Create Song failed");
+        if(model.getData() == null)
+            throw new RuntimeException("Creating Song failed");
 
         Song song = Song.builder()
-                .name(model.getName())
                 .name(model.getName())
                 .singer(model.getSinger()).build();
 
         song = repository.save(song);
 
-        saveFile(data, song.getId());
+        saveFile(model.getData(), song.getId());
 
         return ResponseEntity.ok().body(song);
     }
@@ -61,7 +61,7 @@ public class SongController {
             model.add(WebMvcLinkBuilder
                     .linkTo(WebMvcLinkBuilder
                             .methodOn(this.getClass())
-                            .getData(song.getId()))
+                            .getDataOfSongHasId(song.getId()))
                     .withRel("data"));
 
             models.add(model);
@@ -73,7 +73,8 @@ public class SongController {
     @GetMapping(
             value = "/{id}/data",
             produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public ResponseEntity getData(@PathVariable Long id) throws FileNotFoundException {
+    public ResponseEntity getDataOfSongHasId(@PathVariable Long id) throws FileNotFoundException {
+
         File file = new File(savePath + formatFileName(id));
         InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
 
@@ -84,8 +85,14 @@ public class SongController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity deleteSong(@PathVariable Long id) {
+    public ResponseEntity deleteSongHasId(@PathVariable Long id) {
         repository.deleteById(id);
+
+        File file = new File(String.format("%s%d_music", savePath, id));
+
+        if(file.exists())
+            file.delete();
+
         return ResponseEntity.ok().build();
     }
 
@@ -98,6 +105,7 @@ public class SongController {
         String filePath = savePath + formatFileName(id);
         FileOutputStream outputStream = new FileOutputStream(new File(filePath));
         outputStream.write(data);
+        outputStream.flush();
         outputStream.close();
     }
 
