@@ -1,10 +1,8 @@
 package com.example.controller;
 
 import com.example.entity.Song;
-import com.example.entity.SongModel;
 import com.example.repository.SongRepository;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.hateoas.Link;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,18 +27,18 @@ public class SongController {
     @PostMapping(
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Song> createNewMusic(@ModelAttribute SongModel model) throws IOException {
+    public ResponseEntity<Song> createNewMusic(@ModelAttribute Song entity) throws IOException {
 
-        if(model.getData() == null)
+        if(entity.getData() == null)
             throw new RuntimeException("Creating Song failed");
 
         Song song = Song.builder()
-                .name(model.getName())
-                .singer(model.getSinger()).build();
+                .name(entity.getName())
+                .singer(entity.getSinger()).build();
 
         song = repository.save(song);
 
-        saveFile(model.getData(), song.getId());
+        saveFile(entity.getData(), song.getId());
 
         return ResponseEntity.ok().body(song);
     }
@@ -49,25 +47,8 @@ public class SongController {
     public ResponseEntity getAllSongs() throws FileNotFoundException {
 
         List<Song> songs = repository.findAll();
-        List<SongModel> models = new ArrayList<>();
 
-        SongModel model;
-        for(Song song : songs) {
-            model = SongModel.builder()
-                    .id(song.getId())
-                    .name(song.getName())
-                    .singer(song.getSinger()).build();
-
-            model.add(WebMvcLinkBuilder
-                    .linkTo(WebMvcLinkBuilder
-                            .methodOn(this.getClass())
-                            .getDataOfSongHasId(song.getId()))
-                    .withRel("data"));
-
-            models.add(model);
-        }
-
-        return ResponseEntity.ok().body(models);
+        return ResponseEntity.ok().body(songs);
     }
 
     @GetMapping(
@@ -86,6 +67,8 @@ public class SongController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity deleteSongHasId(@PathVariable Long id) {
+        System.out.println(id);
+
         repository.deleteById(id);
 
         File file = new File(String.format("%s%d_music", savePath, id));

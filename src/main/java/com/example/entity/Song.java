@@ -17,6 +17,7 @@ import javax.validation.constraints.NotNull;
 @Entity
 public class Song {
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Id
     @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -28,5 +29,8 @@ public class Song {
     @Column(name = "singer", nullable = false)
     private String singer;
 
-
+    @Transient
+    @NotNull
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private MultipartFile data;
 }
