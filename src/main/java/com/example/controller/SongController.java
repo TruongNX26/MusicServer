@@ -7,10 +7,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
